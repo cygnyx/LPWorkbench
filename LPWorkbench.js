@@ -275,7 +275,7 @@ App.prototype.newproblem = function() {
     tab.c[4] = -2;
     tab.z = -21;
     tab.name = 'Tableau ' + ++this.tableauCounter;
-    app.state = app.state_primal;
+    app.state = app.state_edit;
     this.history.unshift(tab);
     var html = this.render();
     this.show(html, true);
