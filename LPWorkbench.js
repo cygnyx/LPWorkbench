@@ -50,7 +50,6 @@ App.prototype.show = function(node, replacep) {
     if (replacep) {
 	currentnode.children().remove();
     } else {
-	console.log('show push history');
 	historynode.append(currentnode.children().detach());
     }
 
@@ -160,6 +159,11 @@ App.prototype.menuCell = function() {
 	res += "<li class='menucontextitem' menu='addvar'>Add Variable</li>";
     }
     res += "<li class='menucontextitem' menu='instructions'>Instructions</li>";
+    res += "<li class='menucontextitem' menu='example5'>Example 5</li>";
+    res += "<li class='menucontextitem' menu='copy'>Copy</li>";
+    if (this.history.length > 1)
+	res += "<li class='menucontextitem' menu='undo'>Undo</li>";
+    //    res += "<li class='menucontextitem' menu='refresh'>Refresh</li>";
     res += "</ul>";
     return res + "</th>";
 }
@@ -189,6 +193,8 @@ App.prototype.basisCell = function(r) {
 
     if (tab.n_c > 1)
 	res += "<li row='-1' class='basiscontextitem'>Remove</li>";
+    res += "<li row='-2' class='basiscontextitem'>Add Slack Variable</li>";
+    res += "<li row='-3' class='basiscontextitem'>Add Integer Cut</li>";
 
     return res + "</ul></th>";
 }
@@ -251,6 +257,68 @@ App.prototype.stackproblem = function() {
     this.show(html, false);
 }
 
+App.prototype.residualfloor = function(x) {
+    var res = Math.floor(x);
+    res = x - res; // must be positive
+    if (res < this.epsilon || (res - 1) > this.nepsilon)
+	return 0;
+    return res;
+}
+
+App.prototype.cutGomory = function(basisrow) {
+    var tab = this.history[0];
+    var v = tab.basis[basisrow];
+    var n_v = tab.n_v;
+    var n_c = tab.n_c;
+    if (v < 0 || v >= n_v)
+	return;
+    var br = tab.a[basisrow];
+    tab.addvariable();
+    tab.addconstraint();
+    var cr = tab.a[n_c];
+    var t;
+    for (var i = 0; i < n_v; i++) {
+	t = this.residualfloor(br[i]);
+	if (t != 0)
+	    cr[i] = -t
+    }
+    cr[n_v] = 1;
+    tab.b[n_c] = -this.residualfloor(tab.b[basisrow]);
+    tab.basis[n_c] = n_v;
+}
+
+App.prototype.newname = function() {
+    return 'Tableau ' + ++this.tableauCounter;
+}
+
+App.prototype.example5 = function() {
+    this.clearhistory();
+    var tab = new Tableau({n_c: 2, n_v:2});
+    tab.basis[0] = -1;
+    tab.basis[1] = -1;
+    tab.b[0] = 6;
+    tab.b[1] = 5;
+    tab.a[0][0] = 3;
+    tab.a[0][1] = 2;
+    tab.a[1][0] = 1;
+    tab.a[1][1] = 2;
+    tab.c[0] = -5;
+    tab.c[1] = -4;
+    tab.z = 0;
+    tab.name = this.newname();
+    this.state = this.state_edit;
+    this.history.unshift(tab);
+    var html = this.render();
+    this.show(html, true);
+}
+
+App.prototype.copy = function() {
+    var n = this.history[0].copy();
+    n.name = this.newname();
+    this.history.unshift(n);
+    this.show(this.render(), false);
+}
+
 App.prototype.newproblem = function() {
     this.clearhistory();
     var tab = new Tableau({n_c: 2, n_v:5});
@@ -289,6 +357,17 @@ function init() {
 
     app.newproblem();
 
+    $(cid).on('mouseenter', '.b', function (e) {
+	    if (app.editting())
+		return;
+	    var row = $(this).attr("row") - 1;
+	    var tab = app.history[0];
+	    $(this).append($("<span class='decimal'>"+tab.b[row]+"</span>"));
+	});
+    $(cid).on('mouseleave', '.b', function () {
+	    $(this).find(".decimal").remove();
+	});
+
     $(cid).on('mouseenter', '.A', function (e) {
 	    if (app.editting())
 		return;
@@ -318,7 +397,7 @@ function init() {
 		var tab = app.history[0];
 		var n = tab.copy('Tableau ' + ++app.tableauCounter);
 		tab.circle(row, col);
-		n.primalpivot(row, col);
+		n.pivot(row, col);
 		app.updateproblem();
 		app.history.unshift(n);
 		app.stackproblem();
@@ -328,7 +407,7 @@ function init() {
 		var tab = app.history[0];
 		var n = tab.copy('Tableau ' + ++app.tableauCounter);
 		tab.circle(row, col);
-		n.dualpivot(row, col);
+		n.pivot(row, col);
 		app.updateproblem();
 		app.history.unshift(n);
 		app.stackproblem();
@@ -521,6 +600,20 @@ function init() {
 		app.history[0].addvariable();
 	    } else if (act == "addcon") {
 		app.history[0].addconstraint();
+	    } else if (act == "example5") {
+		app.example5();
+	    } else if (act == "copy") {
+		app.copy();
+	    } else if (act == "refresh") {
+		;
+	    } else if (act == "undo") {
+		if (app.history.length > 1) {
+		    app.history.shift();
+		    $('#history .Tableau:last-child').remove();
+		    var tab = app.history[0];
+		    tab.circlerow = -1;
+		    tab.circlecol = -1;
+		}
 	    } else if (act == "instructions") {
 		$('#instructions').toggleClass("visible");
 	    }
@@ -547,19 +640,22 @@ function init() {
 	    var basisrow = basiscell.attr("row") - 1;
 
 	    var tab = app.history[0];
-	    var tbody = basiscell.parent().parent();
 
-	    if (r == -2) {
+	    switch (r) {
+	    case -4: // A cut for integer problem
+		app.cutGomory(basisrow);
+		break;
+	    case -3: // A slack variable
+		tab.addvariable();
+		tab.a[basisrow][tab.n_v-1] = 1;
+		tab.basis[basisrow] = tab.n_v-1;
+		break;
+	    case -2: // delete
 		tab.deleteconstraint(basisrow);
-		tbody.find('.basis').each(function(){
-			var row = $(this).attr("row") - 1;
-			if (row == basisrow)
-			    $(this).parent().remove();
-			else if (row > basisrow)
-			    $(this).attr("row", row);
-		    });
-	    } else {
+		break;
+	    default:
 		tab.basis[basisrow] = r;
+		break;
 	    }
 
 	    app.updateproblem();

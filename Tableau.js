@@ -35,7 +35,7 @@ var Tableau = function(options) {
     this.circlecol = -1;
 }
 
-Tableau.prototype.primalpivot = function(row, col) {
+Tableau.prototype.pivot = function(row, col) {
     var pivotrow = this.a[row];
     var f = 1.0 / pivotrow[col];
     var thisrow;
@@ -55,10 +55,6 @@ Tableau.prototype.primalpivot = function(row, col) {
     for (var c = 0; c < this.n_v; c++)
 	this.c[c] = this.c[c] - pivotrow[c]*f;
     this.z = this.z - this.b[row] * f;
-}
-
-Tableau.prototype.dualpivot = function(row, col) {
-    this.primalpivot(row, col);
 }
 
 Tableau.prototype.circle = function(row, col) {
