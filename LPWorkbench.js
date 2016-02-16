@@ -25,6 +25,7 @@ var App = function(options) {
     this.digits = -1-this.scale(this.epsilon);
     this.tolerance = Math.pow(10, -Math.floor(2.0*this.digits/3.0));
 
+    this.marked = null;
     this.tableauCounter = 0;
 
     for (var option in options)
@@ -143,30 +144,6 @@ App.prototype.dualing = function() {
     return this.state == this.state_dual;
 }
 
-App.prototype.menuCell = function() {
-    var res = "<th class='menu'>Menu";
-    res += "<ul class='menucontext'>";
-    if (this.primaling()) {
-	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
-    } else if (this.dualing()) {
-	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Primal Mode</li>";
-    } else if (this.editting()) {
-	res += "<li class='menucontextitem' menu='primal'>Primal Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
-	res += "<li class='menucontextitem' menu='addcon'>Add Constraint</li>";
-	res += "<li class='menucontextitem' menu='addvar'>Add Variable</li>";
-    }
-    res += "<li class='menucontextitem' menu='instructions'>Instructions</li>";
-    res += "<li class='menucontextitem' menu='example5'>Example 5</li>";
-    res += "<li class='menucontextitem' menu='copy'>Copy</li>";
-    if (this.history.length > 1)
-	res += "<li class='menucontextitem' menu='undo'>Undo</li>";
-    //    res += "<li class='menucontextitem' menu='refresh'>Refresh</li>";
-    res += "</ul>";
-    return res + "</th>";
-}
 
 App.prototype.basisCell = function(r) {
     var tab = this.history[0];
@@ -195,6 +172,7 @@ App.prototype.basisCell = function(r) {
 	res += "<li row='-1' class='basiscontextitem'>Remove</li>";
     res += "<li row='-2' class='basiscontextitem'>Add Slack Variable</li>";
     res += "<li row='-3' class='basiscontextitem'>Add Integer Cut</li>";
+    res += "<li row='-4' class='basiscontextitem'>Add Artifical Variable</li>";
 
     return res + "</ul></th>";
 }
@@ -212,11 +190,45 @@ App.prototype.xCell = function(i) {
 
 App.prototype.render = function() {
     var tab = this.history[0];
-    var res = "<table class='Tableau'><thead><tr><th class='name'>"+tab.name+"</th>";
+    var res = "<table class='Tableau"+(tab == this.marked?' marked':' nomarked')+"'>";
+
     var t;
     var c;
     var cr = tab.circlerow;
     var cc = tab.circlecol;
+
+    res += "<caption class='name'>"+tab.name+"</caption>";
+    res += "<thead><tr>";
+
+    res += "<th class='menucell'><span class='menu'><span>&equiv;</span>";
+    res += "<ul class='menucontext'>";
+    if (this.primaling()) {
+	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
+	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
+    } else if (this.dualing()) {
+	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
+	res += "<li class='menucontextitem' menu='dual'>Primal Mode</li>";
+    } else if (this.editting()) {
+	res += "<li class='menucontextitem' menu='primal'>Primal Mode</li>";
+	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
+	res += "<li class='menucontextitem' menu='addcon'>Add Constraint</li>";
+	res += "<li class='menucontextitem' menu='addvar'>Add Variable</li>";
+    }
+    res += "<li class='menucontextitem' menu='instructions'>Instructions</li>";
+    res += "<li class='menucontextitem' menu='example5'>Example 5</li>";
+    res += "<li class='menucontextitem' menu='copy'>Copy</li>";
+    if (this.marked == null)
+	res += "<li class='menucontextitem' menu='markcopy'>Mark & Copy</li>";
+    else
+	res += "<li class='menucontextitem' menu='copymark'>Copy Marked</li>";
+    if (tab.obj == 1 && tab.w < this.epsilon && tab.w > this.nepsilon) {
+	res += "<li class='menucontextitem' menu='copyxa'>Copy excluding Artificals</li>";
+    }
+    res += "<li class='menucontextitem' menu='save'>Save</li>";
+    if (this.history.length > 1)
+	res += "<li class='menucontextitem' menu='undo'>Undo</li>";
+    res += "</ul></span></th>";
+
 
     for (var i = 0; i < tab.n_v; i++)
 	res += this.xCell(i);
@@ -227,20 +239,31 @@ App.prototype.render = function() {
 	res += this.basisCell(r);
 	for (var i = 0; i < tab.n_v; i++) {
 	    t = "<span class='"+(r == cr && i == cc ? '':'no')+"circle'>"+this.num2txt(tab.a[r][i])+"</span>";
-	    res += "<td class='A' row='"+(r+1)+"' col='"+(i+1)+"'>"+ t +"</td>";
+	    res += "<td class='"+(i in tab.artificals?'Aw':'A')+"' row='"+(r+1)+"' col='"+(i+1)+"'>"+ t +"</td>";
 	}
 	t = this.num2txt(tab.b[r]);
 	res += "<td class='b' row='"+(r+1)+"'>"+t+"</td></tr>";
     }
 
-    res += "<tr class='data'>";
-    res += this.menuCell();
+    res += "<tr><th class='rowlabel'>z</th>";
+
     for (var i = 0; i < tab.n_v; i++) {
 	t = this.num2txt(tab.c[i]);
-	res += "<td class='c' col='"+(i+1)+"'>"+t+"</td>";
+	res += "<td class='"+(i in tab.artificals?'cw':'c')+"' col='"+(i+1)+"'>"+t+"</td>";
     }
     t = this.num2txt(tab.z);
     res += "<td class='z'>"+t+"</td></tr>";
+
+    if (tab.obj == 1) {
+	res += "<tr><th class='rowlabelw'>w</th>";
+
+	for (var i = 0; i < tab.n_v; i++) {
+	    t = this.num2txt(tab.d[i]);
+	    res += "<td class='cw' col='"+(i+1)+"'>"+t+"</td>";
+	}
+	t = this.num2txt(tab.w);
+	res += "<td class='w'>"+t+"</td></tr>";
+    }
 
     return res + "</tbody></table>";
 }
@@ -312,37 +335,97 @@ App.prototype.example5 = function() {
     this.show(html, true);
 }
 
-App.prototype.copy = function() {
-    var n = this.history[0].copy();
+App.prototype.copy = function(p, xa) {
+    var n = p.copy();
     n.name = this.newname();
+    if (xa) {
+	for (var o in p.artificals)
+	    n.deletevariable(o);
+	n.obj = 0;
+    }
     this.history.unshift(n);
     this.show(this.render(), false);
 }
 
 App.prototype.newproblem = function() {
     this.clearhistory();
-    var tab = new Tableau({n_c: 2, n_v:5});
-    tab.basis[0] = 2;
-    tab.basis[1] = 1;
-    tab.b[0] = 6;
-    tab.b[1] = 15;
-    tab.a[0][0] = -6;
-    tab.a[0][1] = 0;
-    tab.a[0][2] = 1;
-    tab.a[0][3] = -2;
-    tab.a[0][4] = 2;
-    tab.a[1][0] = -3;
-    tab.a[1][1] = 1;
-    tab.a[1][2] = 0;
-    tab.a[1][3] = 6;
-    tab.a[1][4] = 3;
-    tab.c[0] = 5;
-    tab.c[1] = 0;
-    tab.c[2] = 0;
-    tab.c[3] = 3;
-    tab.c[4] = -2;
-    tab.z = -21;
-    tab.name = 'Tableau ' + ++this.tableauCounter;
+    var params = decodeURIComponent(window.location.search.substring(1)).split('&');
+    var kv;
+    var i, j, k;
+    var a = new Object();
+    for (i = 0; i < params.length; i++) {
+	kv = params[i].split('=');
+	a[kv[0]] = kv[1];
+    };
+    var tab, opts;
+    if ('n_c' in a && 'n_v' in a) {
+	opts = {n_c: a['n_c'], n_v: a['n_v']};
+	if ('name' in a)
+	    opts['name'] = a['name'];
+	tab = new Tableau(opts);
+	if ('basis' in a) {
+	    k = a['basis'].split(',');
+	    for (i = 0; i < tab.n_c; i++)
+		tab.basis[i] = parseInt(k[i]);
+	}
+	if ('b' in a) {
+	    k = a['b'].split(',');
+	    for (i = 0; i < tab.n_c; i++)
+		tab.b[i] = parseFloat(k[i]);
+	}
+	if ('a' in a) {
+	    k = a['a'].split(',');
+	    for (i = 0; i < tab.n_c; i++)
+		for (j = 0; j < tab.n_v; j++)
+		    tab.a[i][j] = parseFloat(k[i*tab.n_v+j]);
+	}
+	if ('c' in a) {
+	    k = a['c'].split(',');
+	    for (i = 0; i < tab.n_v; i++)
+		tab.c[i] = parseFloat(k[i]);
+	}
+	if ('d' in a) {
+	    k = a['d'].split(',');
+	    for (i = 0; i < tab.n_v; i++)
+		tab.d[i] = parseFloat(k[i]);
+	}
+	if ('f' in a) {
+	    k = a['f'].split(',');
+	    for (i in k)
+		tab.artificals[k[i]] = 1;
+	}
+	if ('z' in a)
+	    tab.z = a['z'];
+	if ('w' in a)
+	    tab.w = a['w'];
+	if ('obj' in a)
+	    tab.obj = a['obj'];
+    } else {
+	opts = {n_c: 2, n_v: 5};
+	tab = new Tableau({n_c: 2, n_v:5});
+	tab.basis[0] = 2;
+	tab.basis[1] = 1;
+	tab.b[0] = 6;
+	tab.b[1] = 15;
+	tab.a[0][0] = -6;
+	tab.a[0][1] = 0;
+	tab.a[0][2] = 1;
+	tab.a[0][3] = -2;
+	tab.a[0][4] = 2;
+	tab.a[1][0] = -3;
+	tab.a[1][1] = 1;
+	tab.a[1][2] = 0;
+	tab.a[1][3] = 6;
+	tab.a[1][4] = 3;
+	tab.c[0] = 5;
+	tab.c[1] = 0;
+	tab.c[2] = 0;
+	tab.c[3] = 3;
+	tab.c[4] = -2;
+	tab.z = -21;
+	tab.name = 'Tableau ' + ++this.tableauCounter;
+    }
+
     app.state = app.state_edit;
     this.history.unshift(tab);
     var html = this.render();
@@ -362,7 +445,10 @@ function init() {
 		return;
 	    var row = $(this).attr("row") - 1;
 	    var tab = app.history[0];
-	    $(this).append($("<span class='decimal'>"+tab.b[row]+"</span>"));
+	    var cell = $("<span class='decimal'>"+tab.b[row]+"</span>");
+	    var f = $(this).position();
+	    cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+	    $(this).append(cell);
 	});
     $(cid).on('mouseleave', '.b', function () {
 	    $(this).find(".decimal").remove();
@@ -378,12 +464,21 @@ function init() {
 	    if (den > app.nepsilon && den < app.epsilon)
 		return;
 	    var ratio;
+	    var cell;
+	    var f;
+
 	    if (app.primaling() && tab.c[col] != 0.0) {
 		ratio = tab.b[row] / den;
-		$(this).append($("<span class='ratio'>"+ratio+"</span>"));
+		cell = $("<span class='ratio'>"+ratio+"</span>");
 	    } else if (app.dualing() && tab.c[col] != 0.0) {
-		ratio = tab.c[col] / den;
-		$(this).append($("<span class='ratio'>"+ratio+"</span>"));
+		ratio = (tab.obj == 1 ? tab.d[col] : tab.c[col]) / den;
+		cell = $("<span class='ratio'>"+ratio+"</span>");
+	    } else
+		cell = null;
+	    if (cell) {
+		f = $(this).position();
+		cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+		$(this).append(cell);
 	    }
 	});
     $(cid).on('mouseleave', '.A', function () {
@@ -446,12 +541,10 @@ function init() {
 			}
 		    });
 		cell.mouseleave(function (e) {
-			console.log('ml ' + OriginalContent);
 			$(this).parent().removeClass("cellEditing");
 			$(this).parent().text(OriginalContent);
 		    });
 		cell.blur(function(){
-			console.log('blur ' + OriginalContent);
 			$(this).parent().removeClass("cellEditing");
 			$(this).parent().text(OriginalContent);
 		    });
@@ -582,7 +675,7 @@ function init() {
     $(cid).on(act, '.menu', function (e) {
 	    var cell = $(this).find('.menucontext').first();
 	    cell.addClass('visible');
-	    cell.css({ top: e.pageY-10, left: e.pageX-10 });
+	    cell.css({ top: e.pageY-1, left: e.pageX-1 });
 	    cell.mouseleave(function() {
 		    cell.removeClass('visible');
 		});
@@ -602,10 +695,20 @@ function init() {
 		app.history[0].addconstraint();
 	    } else if (act == "example5") {
 		app.example5();
+	    } else if (act == "markcopy") {
+		app.marked = app.history[0];
+		app.updateproblem();
+		app.copy(app.marked, false);
+	    } else if (act == "copymark") {
+		var m = app.marked;
+		app.marked = null;
+		app.copy(m, false);
 	    } else if (act == "copy") {
-		app.copy();
-	    } else if (act == "refresh") {
-		;
+		app.copy(app.history[0], false);
+	    } else if (act == "copyxa") {
+		app.copy(app.history[0], true);
+	    } else if (act == "save") {
+		window.open(window.location.origin + window.location.pathname + '?' + app.history[0].toURL(), '_blank');
 	    } else if (act == "undo") {
 		if (app.history.length > 1) {
 		    app.history.shift();
@@ -625,7 +728,7 @@ function init() {
 		return
 	    var cell = $(this).find('.basiscontext').first();
 	    cell.addClass('visible');
-	    cell.css({ top: e.pageY-10, left: e.pageX-10 });
+	    cell.css({ top: e.pageY-1, left: e.pageX-1 });
 	    cell.mouseleave(function() {
 		    cell.removeClass('visible');
 		});
@@ -642,10 +745,27 @@ function init() {
 	    var tab = app.history[0];
 
 	    switch (r) {
+	    case -5: // Artifical variable
+		tab.addvariable();
+		tab.artificals[tab.n_v-1] = 1;
+		if (tab.obj == 0) {
+		    tab.obj = 1;
+		    for (var i = 0; i < tab.n_v; i++)
+			tab.d[i] = 0;
+		    tab.w = 0;
+		}
+		var br = tab.a[basisrow];
+		for (var i = 0; i < tab.n_v-1; i++)
+		    tab.d[i] -= br[i];
+		br[tab.n_v-1] = 1;
+		tab.d[tab.n_v-1] = 0;
+		tab.w -= tab.b[basisrow];
+		tab.basis[basisrow] = tab.n_v-1;
+		break;
 	    case -4: // A cut for integer problem
 		app.cutGomory(basisrow);
 		break;
-	    case -3: // A slack variable
+	    case -3: // Add slack variable
 		tab.addvariable();
 		tab.a[basisrow][tab.n_v-1] = 1;
 		tab.basis[basisrow] = tab.n_v-1;
@@ -666,7 +786,7 @@ function init() {
 		return
 	    var cell = $(this).find('.xcontext').first();
 	    cell.addClass('visible');
-	    cell.css({ top: e.pageY-10, left: e.pageX-10 });
+	    cell.css({ top: e.pageY-1, left: e.pageX-1 });
 	    cell.mouseleave(function() {
 		    cell.removeClass('visible');
 		});

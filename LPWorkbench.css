@@ -1,22 +1,23 @@
 body {
   background-color: white;
-  font-size: 18pt;
+  font-size: larger;
   font-family: fixed;
+  margin: 4em;
 }
 
 #textarea {
   font-family: fixed;
-  font-size: 18pt;
+  font-size: larger;
 }
 
 .nocircle {
-  padding: 8px;
+  padding: .25em;
 }
 
 .circle {
   border: 1px solid black;
   border-radius: 50%;
-  padding: 8px;
+  padding: .25em;
 }
 
 #instructions.visible {
@@ -27,19 +28,57 @@ body {
   display: none;
 }
 
+#instructions sup {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+}
+
+#instructions sub {
+  vertical-align: baseline;
+  position: relative;
+  top: 0.4em;
+}
+
 #history .menu {
   visibility: hidden;
 }
 
+#current {
+  font-size: larger;
+}
+
+#history {
+  font-size: larger;
+}
+
 .Tableau {
-  margin-top: 10px;
+  font-size: larger;
+  margin-top: 1em;
+  margin-left: 1em;
   empty-cells: show;
+  outline: 1px solid black;
+}
+
+.Tableau td {
+  padding: .5em;
+}
+
+.Tableau .marked {
+  outline: 3px double black;
 }
 
 .Tableau .name {
+  background: lightgray;
+  font-weight: bold;
+  padding: .25em;
+  border-left: 1px solid black;
   border-right: 1px solid black;
+  border-top: 1px solid black;
   border-bottom: 1px solid black;
+  text-align: left;
 }
+
 
 .Tableau .rhs {
   border-left: 1px solid black;
@@ -48,20 +87,20 @@ body {
 
 .Tableau .ratio {
   display: block;
+  font-size: smaller;
+  background: lightyellow;
   position: absolute;
-  background: gray;
-  margin: 0px;
-  padding: 10px;
+  padding: .1em;
   border: 1px solid black;
   text-align: left;
 }
 
 .Tableau .decimal {
   display: block;
+  background: lightyellow;
+  font-size: smaller;
   position: absolute;
-  background: gray;
-  margin: 0px;
-  padding: 10px;
+  padding: .1em;
   border: 1px solid black;
   text-align: left;
 }
@@ -72,11 +111,12 @@ body {
 
 .Tableau .basiscontext {
   display: none;
+  font-size: smaller;
   position: absolute;
   background: gray;
   list-style-type: none;
   margin: 0px;
-  padding: 10px;
+  padding: .5em;
   border: 1px solid black;
   text-align: left;
 }
@@ -89,36 +129,86 @@ body {
   background-color: lightgray;
   border: none;
   font-family: fixed;
-  font-size: 18pt;
+  font-size: larger;
+}
+
+.Tableau.marked {
+  border: 3px solid black;
+}
+
+.Tableau.nomarked {
+  border: 3px double black;
 }
 
 .Tableau {
-  border: 1px solid black;
   border-collapse: collapse;
   background-color: lightgray;
   text-align: center;
 }
 
 .Tableau td {
-  padding: 10px;
+  padding: .25em;
+}
+
+.Tableau th {
+  padding-right: .25em;
+  padding-left: .25em;
 }
 
 .Tableau .b {
+  background: lightblue;
   border-left: 1px solid black;
+}
+
+.Tableau .A {
+  background: pink;
+}
+
+.Tableau .Aw {
+  background: cornsilk;
 }
 
 .Tableau .c {
+  background: lightgreen;
   border-top: 1px solid black;
 }
 
+.Tableau .cw {
+  background: cornsilk;
+}
+
 .Tableau .z {
+  background: aquamarine;
   border-top: 1px solid black;
   border-left: 1px solid black;
 }
 
-.Tableau .menu {
+.Tableau .zw {
+  background: cornsilk;
+  border-left: 1px solid black;
+}
+
+.Tableau .w {
+  border-left: 1px solid black;
+  background: cornsilk;
+}
+
+.Tableau .rowlabel {
   border-top: 1px solid black;
   border-right: 1px solid black;
+}
+
+.Tableau .rowlabelw {
+  border-right: 1px solid black;
+}
+
+.Tableau .menucell {
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+.Tableau .menu span {
+  font-size: 1.5em;
 }
 
 .Tableau .menucontext.visible {
@@ -127,11 +217,12 @@ body {
 
 .Tableau .menucontext {
   display: none;
+  font-size: smaller;
   position: absolute;
   background: gray;
   list-style-type: none;
   margin: 0px;
-  padding: 10px;
+  padding: .5em;
   border: 1px solid black;
   text-align: left;
 }
@@ -142,17 +233,22 @@ body {
 
 .Tableau .xcontext {
   display: none;
+  font-size: smaller;
   position: absolute;
   background: gray;
   list-style-type: none;
   margin: 0px;
-  padding: 10px;
+  padding: .25em;
   border: 1px solid black;
   text-align: left;
 }
 
 .Tableau .basis {
   border-right: 1px solid black;
+}
+
+.Tableau caption:hover {
+  background-color: white;
 }
 
 .Tableau th:hover {

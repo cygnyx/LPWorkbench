@@ -19,7 +19,153 @@
 <div id="instructions">
 <h2>Instructions</h2>
 <p>
-This is a tool for learning Linear Programming techniques using the Simplex method.
+Linear Programming Workbench is a free tool for students to manipulate tableaux representing Simplex style linear programming
+problems. The problems are specified in canonical form using the notation in
+<cite>An Introduction to Linear Programming and Game Theory, Third Edition</cite>
+by <span class="author">Paul R. Thie and G. E. Keough</span>.
+The student can adjust the tableau by various operations including pivoting.
+</p><p>
+Variables and constraint can be added or removed as needed to solve the problem.
+New variables are assumed to be slack variables, but the student can edit the tableau as needed.
+New Artifical variables will generate an auxiliary w-function.
+</p><p>
+After the problem is set up the student can pivot on an term by clicking on it.
+The appropriate ratio is displayed by hovering over the term corresponding to primal or dual mode.
+</p><p>
+Once a solution to a problem is achieved, the student has several choices on how to proceed.
+For a branch and bound style integer problem, the tableau can be marked and copied.
+The student proceeds to solve the first branch, then copies the marked tableau to solve the second branch.
+For a problem with artifical variables, once the auxiliary w-function is optimized to 0,
+the student can copy the tableau without the associated artifical variables in order to solve the original problem.
+At any point the student can make a copy of the tableau in order to add constraints or variables.
+Alternatively the student can save the tableau which will create a new page.
+</p>
+
+<h2>Getting Started</h2>
+
+Initially the page displays a single tableau representing Table 3.1 from the text.
+In Edit Mode, selecting any term in the tableau will allow the student to edit the item.
+The student is able to TAB to get to the next term, or ENTER to finish editting.
+The term can be any javascript floating point expression: 1.3, 4/5, or even Math.PI.
+The name of the tableau can also be changed.
+</p><p>
+Selecting a basis label will display a context menu.
+The student can change the label of the basis, remove the constraint, add a slack or artifical variable,
+or add a Gomory integer cut.
+</p><p>
+Selecting a variable name will also display a context menu which allows the student to remove the variable.
+</p><p>
+The top left cell has the symbol '&equiv;' which is the icon for the menu.
+Selecting the menu displays a short list of operations that are available to the student.
+Primal Mode is used for primal pivoting and Dual Mode is used for dual pivoting.
+Selecting either of these modes exits from the Edit Mode.
+To help the student select the correct pivot term these modes display the appropriate ratio.
+Notice that the student can return to Edit Mode by selecting it on the menu.
+</p><p>
+Selecting 'Add Constraint' will add another constraint to the tableau.
+Selecting 'Add Variable' will add another variable to the tableau.
+</p><p>
+These instructions are accessible on the page by selecting 'Instructions' on the menu.
+Selecting Example 5 from the menu will replace the existing page with the example from the text.
+</p><p>
+The student can record a copy of the tableau by selecting 'Copy' on the menu.
+'Mark & Copy' is similar but the copy of the tableau is marked.
+The marked tableau can be recalled later.
+This is useful during branch and bound calculations.
+</p><p>
+The most recent tableau can be removed by selecting 'Undo' on the menu.
+If the student pivots on the wrong term, for example, the resulting incorrect tableau
+can be removed and the problem continues from the previous step.
+</p><p>
+Finally, the student can save the current tableau (but not the history) by selecting 'Save'
+on the menu.
+This will display the current tableau on a new page without the history.
+The new page has a unique URL which includes information about the tableau.
+The student can bookmark the URL to share with an instructor or other students.
+</p>
+
+<h2>Sample Problem Configuration</h2>
+
+<p>
+Suppose the student has the problem (Section 3.3 from the text):
+</p>
+<table style="margin-left:10em">
+<tbody>
+<tr><td>Minimize</td><td>-4x<sub>1</sub></td><td>+</td><td>x<sub>2</sub></td><td>+</td><td>x<sub>3</sub></td><td>+</td><td>7x<sub>4</sub></td><td>+</td><td>3x<sub>5</sub></td><td>=</td><td><i>z</i></td><td>&nbsp;</td></tr>
+<tr><td>subject to</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>-6x<sub>1</sub></td><td>&nbsp;</td><td>&nbsp;</td><td>+</td><td>x<sub>3</sub></td><td>-</td><td>2x<sub>4</sub></td><td>+</td><td>2x<sub>5</sub></td><td>=</td><td>6</td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>-3x<sub>1</sub></td><td>+</td><td>x<sub>2</sub></td><td>-</td><td>x<sub>3</sub></td><td>+</td><td>8x<sub>4</sub></td><td>+</td><td>x<sub>5</sub></td><td>=</td><td>9</td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&forall; x<sub><i>i</i></sub> &ge; 0</td></tr>
+</tbody>
+</table>
+<p>
+The student then converts the problem into canonical form
+using x<sub>2</sub> and x<sub>3</sub> as basic variables.
+</p>
+<table style="margin-left:10em; text-align:right">
+<tbody>
+<tr><td>&nbsp;</td><td>-6x<sub>1</sub></td><td>&nbsp;</td><td>&nbsp;</td><td>+</td><td>x<sub>3</sub></td><td>-</td><td>2x<sub>4</sub></td><td>+</td><td>2x<sub>5</sub></td><td>=</td><td>6</td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>-3x<sub>1</sub></td><td>+</td><td>x<sub>2</sub></td><td>&nbsp;</td><td>&nbsp;</td><td>+</td><td>6x<sub>4</sub></td><td>+</td><td>3x<sub>5</sub></td><td>=</td><td>15</td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>5x<sub>1</sub></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>+</td><td>3x<sub>4</sub></td><td>-</td><td>2x<sub>5</sub></td><td>=</td><td>-21</td><td> + <i>z</i></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&forall; x<sub><i>i</i></sub> &ge; 0</td></tr>
+</tbody>
+</table>
+<p>
+This is the default problem for this tool which has 2 constraints and 5 variables.
+</p>
+
+<h2>Sample Problem Pivoting</h2>
+<p>
+Pivoting is the method that the simplex method uses to proceed from a feasible solution to improved feasible solution.
+When the feasible solution cannot be improved then the problem is solved.
+There are two styles of pivoting that are used in the simplex method: Primal and Dual.
+Primal pivoting considers the ratio of the object function coefficients to the various terms.
+Whereas Dual pivoting considers the ration of the RHS values to the various terms.
+The student selects a term in the tableau and this tool will execute a pivot and display the resulting updated tableau.
+</p>
+<p>
+For the sample problem, the student enters 'Primal Mode' and selects the term 2x<sub>5</sub> in constraint 1.
+The selected term is circled and the new revised tableau is displayed.
+Notice that the calculated terms use fractional notation.
+Next, the student selects the term 6x<sub>1</sub> in constraint 2.
+Again, the selected term is circled and the new revised tableau is displayed.
+Also notice that the appropriate ratio is displayed in decimal form to make comparisons easier.
+In this case, the solution is optimal since all the remaining objective function coefficients are positive.
+The minimum value is <i>z</i> = 14 at x<sup>t</sup> = (1, 0, 0, 0, 6).
+</p>
+
+<h2>Integer Problems</h2>
+<p>
+The tool supports Gomory cuts for solving integer problems.
+In the default problem change the term x<sub>5</sub> of constraint 1 from 2 to 5,
+and then solve it by pivoting on the term 5x<sub>5</sub>.
+The solution moves to x<sup>t</sup> = (0, 57/5, 0, 0, 6/5).
+This is the solution to the so-called relaxed integer problem.
+Notice that hovering over the RHS values displays the value in decimal format.
+In this case, the student ought to select constraint 2 for the first cut.
+</p>
+<p>
+Re-enter Edit Mode, by selecting it on the menu.
+Then select 'Add Integer Cut' from the basis label context menu on the left side of constraint 2.
+This modifies the tableau by adding a new slack variable, adding it to the basis, and
+calculating the new Gomory constraint that excludes the basis variables.
+Enter Dual Mode to solve this problem and select the term -2/5x<sub>3</sub> in constraint 3.
+Now, variables x<sub>1</sub> - x<sub>5</sub> have integer values x<sup>t</sup> = (0, 12, 1, 0, 1)
+and the objective function value is 19.
+</p>
+
+<h2>Implementation</h2>
+
+<p>
+This instructional tool is written in web standard languages: HTML, CSS and Javascript.
+It uses the jquery javascript library to support compatibility with most browsers.
+The layout is designed to work with as many devices as possible: computers, pads and smart phones.
+Internally the calculations use double precision floating point arithmatic.
+Fractional values displayed in the tableau are approximations of these floating point values.
+Small tolerances are used to identify values that are close to zero.
+</p>
+
+<h2>Tableaux</h2>
 </p>
 </div>
 <div id="history">

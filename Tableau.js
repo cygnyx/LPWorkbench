@@ -17,6 +17,8 @@ var Tableau = function(options) {
     this.w = 0;
     this.obj = 0;
 
+    this.artificals = new Object();
+
     for (var v = 0; v < this.n_v; v++) {
 	this.x[v] = 0;
 	this.c[v] = 0;
@@ -35,6 +37,21 @@ var Tableau = function(options) {
     this.circlecol = -1;
 }
 
+Tableau.prototype.toURL = function() {
+    var res = "";
+    var num = ['name','n_c','n_v', 'z', 'w', 'obj'];
+    var arr = ['basis', 'x', 'b', 'a', 'c', 'd'];
+    var f = "";
+    for (var key in this.artificals)
+	f += ',' + key;
+    for (var key in num)
+	res += '&' + num[key] + "=" + encodeURIComponent(this[num[key]]);
+    for (var key in arr)
+	res += '&' + arr[key] + "=" + encodeURIComponent(this[arr[key]].join(','));
+
+    return res.substring(1) + "&f=" + encodeURIComponent(f.substring(1));
+}
+
 Tableau.prototype.pivot = function(row, col) {
     var pivotrow = this.a[row];
     var f = 1.0 / pivotrow[col];
@@ -51,10 +68,21 @@ Tableau.prototype.pivot = function(row, col) {
 		thisrow[c] = (c == col) ? 0 : (thisrow[c] - pivotrow[c]*f);
 	    this.b[r] = this.b[r] - this.b[row]*f;
 	}
-    f = this.c[col];
+    if (this.obj == 1) {
+	thisrow = this.c;
+	f = thisrow[col];
+	for (var c = 0; c < this.n_v; c++)
+	    thisrow[c] = (c == col) ? 0 : (thisrow[c] - pivotrow[c]*f);
+	this.z = this.z - this.b[row] * f;
+    }
+    var o = this.obj == 1 ? this.d : this.c;
+    f = o[col];
     for (var c = 0; c < this.n_v; c++)
-	this.c[c] = this.c[c] - pivotrow[c]*f;
-    this.z = this.z - this.b[row] * f;
+	o[c] = (c == col) ? 0 : (o[c] - pivotrow[c]*f);
+    if (this.obj == 1)
+	this.w = this.w - this.b[row] * f;
+    else
+	this.z = this.z - this.b[row] * f;
 }
 
 Tableau.prototype.circle = function(row, col) {
@@ -73,10 +101,16 @@ Tableau.prototype.copy = function(name) {
     n.d = this.d.slice();
     n.w = this.w;
     n.obj = this.obj;
-    for (var r = 0; r < this.n_c; r++)
-	n.a[r] = this.a[r].slice();
     n.circlerow = this.circlerow;
     n.circlecol = this.circlecol;
+    n.artificals = new Object();
+
+    for (var r = 0; r < this.n_c; r++)
+	n.a[r] = this.a[r].slice();
+
+    for (var o in this.artificals)
+	n.artificals[o] = this.artificals[o];
+
     return n;
 }
 
