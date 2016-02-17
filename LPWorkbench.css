@@ -69,7 +69,7 @@ body {
 }
 
 .Tableau .name {
-  background: lightgray;
+  background-color: lightgray;
   font-weight: bold;
   padding: .25em;
   border-left: 1px solid black;
@@ -88,7 +88,7 @@ body {
 .Tableau .ratio {
   display: block;
   font-size: smaller;
-  background: lightyellow;
+  background-color: lightyellow;
   position: absolute;
   padding: .1em;
   border: 1px solid black;
@@ -97,7 +97,7 @@ body {
 
 .Tableau .decimal {
   display: block;
-  background: lightyellow;
+  background-color: lightyellow;
   font-size: smaller;
   position: absolute;
   padding: .1em;
@@ -113,7 +113,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: gray;
   list-style-type: none;
   margin: 0px;
   padding: .5em;
@@ -156,41 +156,41 @@ body {
 }
 
 .Tableau .b {
-  background: lightblue;
+  background-color: lightblue;
   border-left: 1px solid black;
 }
 
 .Tableau .A {
-  background: pink;
+  background-color: pink;
 }
 
 .Tableau .Aw {
-  background: cornsilk;
+  background-color: cornsilk;
 }
 
 .Tableau .c {
-  background: lightgreen;
+  background-color: lightgreen;
   border-top: 1px solid black;
 }
 
 .Tableau .cw {
-  background: cornsilk;
+  background-color: cornsilk;
 }
 
 .Tableau .z {
-  background: aquamarine;
+  background-color: aquamarine;
   border-top: 1px solid black;
   border-left: 1px solid black;
 }
 
 .Tableau .zw {
-  background: cornsilk;
+  background-color: cornsilk;
   border-left: 1px solid black;
 }
 
 .Tableau .w {
   border-left: 1px solid black;
-  background: cornsilk;
+  background-color: cornsilk;
 }
 
 .Tableau .rowlabel {
@@ -219,7 +219,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: gray;
   list-style-type: none;
   margin: 0px;
   padding: .5em;
@@ -235,7 +235,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: gray;
   list-style-type: none;
   margin: 0px;
   padding: .25em;
