@@ -1,5 +1,5 @@
 body {
-  background-color: white;
+  background-color: hsl(0, 0%, 100%);
   font-size: larger;
   font-family: fixed;
   margin: 4em;
@@ -69,7 +69,7 @@ body {
 }
 
 .Tableau .name {
-  background: lightgray;
+  background-color: hsl(0, 0%, 83%);
   font-weight: bold;
   padding: .25em;
   border-left: 1px solid black;
@@ -88,7 +88,7 @@ body {
 .Tableau .ratio {
   display: block;
   font-size: smaller;
-  background: lightyellow;
+  background-color: hsl(60, 100%, 94%);
   position: absolute;
   padding: .1em;
   border: 1px solid black;
@@ -97,7 +97,7 @@ body {
 
 .Tableau .decimal {
   display: block;
-  background: lightyellow;
+  background-color: hsl(60, 100%, 94%);
   font-size: smaller;
   position: absolute;
   padding: .1em;
@@ -113,7 +113,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: hsl(0, 0%, 50%);
   list-style-type: none;
   margin: 0px;
   padding: .5em;
@@ -126,7 +126,7 @@ body {
 }
 
 .Tableau input {
-  background-color: lightgray;
+  background-color: hsl(0, 0%, 83%);
   border: none;
   font-family: fixed;
   font-size: larger;
@@ -142,7 +142,7 @@ body {
 
 .Tableau {
   border-collapse: collapse;
-  background-color: lightgray;
+  background-color: hsl(0, 0%, 83%);
   text-align: center;
 }
 
@@ -156,41 +156,41 @@ body {
 }
 
 .Tableau .b {
-  background: lightblue;
+  background-color: hsl(195, 53%, 79%);
   border-left: 1px solid black;
 }
 
 .Tableau .A {
-  background: pink;
+  background-color: hsl(350, 100%, 88%);
 }
 
 .Tableau .Aw {
-  background: cornsilk;
+  background-color: hsl(48, 100%, 93%);
 }
 
 .Tableau .c {
-  background: lightgreen;
+  background-color: hsl(120, 73%, 75%);
   border-top: 1px solid black;
 }
 
 .Tableau .cw {
-  background: cornsilk;
+  background-color: hsl(48, 100%, 93%);
 }
 
 .Tableau .z {
-  background: aquamarine;
+  background-color: hsl(160, 100%, 75%);
   border-top: 1px solid black;
   border-left: 1px solid black;
 }
 
 .Tableau .zw {
-  background: cornsilk;
+  background-color: hsl(48, 100%, 93%);
   border-left: 1px solid black;
 }
 
 .Tableau .w {
   border-left: 1px solid black;
-  background: cornsilk;
+  background-color: hsl(48, 100%, 93%);
 }
 
 .Tableau .rowlabel {
@@ -219,7 +219,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: hsl(0, 0%, 50%);
   list-style-type: none;
   margin: 0px;
   padding: .5em;
@@ -235,7 +235,7 @@ body {
   display: none;
   font-size: smaller;
   position: absolute;
-  background: gray;
+  background-color: hsl(0, 0%, 50%);
   list-style-type: none;
   margin: 0px;
   padding: .25em;
@@ -248,13 +248,13 @@ body {
 }
 
 .Tableau caption:hover {
-  background-color: white;
+  background-color: hsl(0, 0%, 100%);
 }
 
 .Tableau th:hover {
-  background-color: white;
+  background-color: hsl(0, 0%, 100%);
 }
 
 .Tableau td:hover {
-  background-color: white;
+  background-color: hsl(0, 0%, 100%);
 }
