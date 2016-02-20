@@ -16,6 +16,18 @@
 </head>
 <body>
 <h1>Linear Programming Workbench</h1>
+<div id="help" class="visible noprint">
+Use the menu in the tableau to get instructions and execute operations.
+<p>
+Keyboard shortcuts:
+<ul id="shortcutlist">
+<li>p - Primal Mode
+<li>d - Dual Mode
+<li>e - Edit Mode
+<li>u - Undo
+</ul>
+</p>
+</div>
 <div id="instructions">
 <h2>Instructions</h2>
 <p>
@@ -46,7 +58,10 @@ Alternatively the student can save the tableau which will create a new page.
 Initially the page displays a single tableau representing Table 3.1 from the text.
 In Edit Mode, selecting any term in the tableau will allow the student to edit the item.
 The student is able to TAB to get to the next term, or ENTER to finish editting.
-The term can be any javascript floating point expression: 1.3, 4/5, or even Math.PI.
+The term can be any javascript floating point expression:
+<tt>1.3</tt>,
+<tt><sup>4</sup>&frasl;<sub>5</sub></tt>,
+or even <tt>Math.PI</tt>.
 The name of the tableau can also be changed.
 </p><p>
 Selecting a basis label will display a context menu.
@@ -55,7 +70,7 @@ or add a Gomory integer cut.
 </p><p>
 Selecting a variable name will also display a context menu which allows the student to remove the variable.
 </p><p>
-The top left cell has the symbol '&equiv;' which is the icon for the menu.
+The top left cell in the tableau is the menu.
 Selecting the menu displays a short list of operations that are available to the student.
 Primal Mode is used for primal pivoting and Dual Mode is used for dual pivoting.
 Selecting either of these modes exits from the Edit Mode.
@@ -139,7 +154,7 @@ The minimum value is <i>z</i> = 14 at x<sup>t</sup> = (1, 0, 0, 0, 6).
 The tool supports Gomory cuts for solving integer problems.
 In the default problem change the term x<sub>5</sub> of constraint 1 from 2 to 5,
 and then solve it by pivoting on the term 5x<sub>5</sub>.
-The solution moves to x<sup>t</sup> = (0, 57/5, 0, 0, 6/5).
+The solution moves to x<sup>t</sup> = (0, <sup>57</sup>&frasl;<sub>5</sub>, 0, 0, <sup>6</sup>&frasl;<sub>5</sub>).
 This is the solution to the so-called relaxed integer problem.
 Notice that hovering over the RHS values displays the value in decimal format.
 In this case, the student ought to select constraint 2 for the first cut.
@@ -149,7 +164,7 @@ Re-enter Edit Mode, by selecting it on the menu.
 Then select 'Add Integer Cut' from the basis label context menu on the left side of constraint 2.
 This modifies the tableau by adding a new slack variable, adding it to the basis, and
 calculating the new Gomory constraint that excludes the basis variables.
-Enter Dual Mode to solve this problem and select the term -2/5x<sub>3</sub> in constraint 3.
+Enter Dual Mode to solve this problem and select the term -<sup>2</sup>&frasl;<sub>5</sub>x<sub>3</sub> in constraint 3.
 Now, variables x<sub>1</sub> - x<sub>5</sub> have integer values x<sup>t</sup> = (0, 12, 1, 0, 1)
 and the objective function value is 19.
 </p>

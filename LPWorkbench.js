@@ -21,6 +21,7 @@ var App = function(options) {
     this.history = []
     this.historyid = "#history";
     this.currentid = "#current";
+    this.helpid = "#help";
 
     this.digits = -1-this.scale(this.epsilon);
     this.tolerance = Math.pow(10, -Math.floor(2.0*this.digits/3.0));
@@ -59,6 +60,11 @@ App.prototype.show = function(node, replacep) {
 
 App.prototype.scale = function(n) {
     return Math.trunc(Math.log(n)/this.ln10);
+}
+
+App.prototype.circnum = function(o, circlep) {
+    circlep = circlep || false;
+    return "<span class='" + (circlep ? '':'no') + "circle'>" + this.num2txt(o) + "</span>";
 }
 
 App.prototype.num2txt = function(o) {
@@ -108,7 +114,7 @@ App.prototype.num2txt = function(o) {
 	    break;
     } 
 
-    return (neg ? -m0[0] : m0[0]) + (m1[0] == 1 ? "" : "/" + m1[0]);
+    return (neg ? "-" : "") + (m1[0] == 1 ? m0[0] : m0[0] + "/" + m1[0]);
 }
 
 App.prototype.round = function(n, d) {
@@ -144,39 +150,6 @@ App.prototype.dualing = function() {
     return this.state == this.state_dual;
 }
 
-
-App.prototype.basisCell = function(r) {
-    var tab = this.history[0];
-    var res = "<th class='basis' row='"+(r+1)+"'>X";
-    if (tab.basis[r] != -1)
-	res += "<sub>"+(tab.basis[r]+1)+"</sub>";
-
-    var values = [];
-    var i;
-    for (i = 0; i < tab.n_v; i++)
-	values[i] = i+1;
-    for (i = 0; i < tab.n_c; i++)
-	if (tab.basis[i] != -1)
-	    values[tab.basis[i]] = -1;
-
-    res += "<ul class='basiscontext'>";
-    if (tab.basis[r] != -1)
-	res += "<li row='0' class='basiscontextitem'>X</li>";
-
-    for (i = 0; i < tab.n_v; i++) {
-	if (values[i] != -1)
-	    res += "<li row='"+values[i]+"' class='basiscontextitem'>X<sub>"+values[i]+"</sub></li>";
-    }
-
-    if (tab.n_c > 1)
-	res += "<li row='-1' class='basiscontextitem'>Remove</li>";
-    res += "<li row='-2' class='basiscontextitem'>Add Slack Variable</li>";
-    res += "<li row='-3' class='basiscontextitem'>Add Integer Cut</li>";
-    res += "<li row='-4' class='basiscontextitem'>Add Artifical Variable</li>";
-
-    return res + "</ul></th>";
-}
-
 App.prototype.xCell = function(i) {
     var res = "<th class='x'>X<sub>"+(i+1)+"</sub>";
     var tab = this.history[0];
@@ -200,45 +173,84 @@ App.prototype.render = function() {
     res += "<caption class='name'>"+tab.name+"</caption>";
     res += "<thead><tr>";
 
-    res += "<th class='menucell'><span class='menu'><span>&equiv;</span>";
+    res += "<th class='menucell'><span class='menu noprint'><span>Menu</span>";
     res += "<ul class='menucontext'>";
-    if (this.primaling()) {
-	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
-    } else if (this.dualing()) {
-	res += "<li class='menucontextitem' menu='edit'>Edit Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Primal Mode</li>";
-    } else if (this.editting()) {
-	res += "<li class='menucontextitem' menu='primal'>Primal Mode</li>";
-	res += "<li class='menucontextitem' menu='dual'>Dual Mode</li>";
-	res += "<li class='menucontextitem' menu='addcon'>Add Constraint</li>";
-	res += "<li class='menucontextitem' menu='addvar'>Add Variable</li>";
-    }
-    res += "<li class='menucontextitem' menu='instructions'>Instructions</li>";
-    res += "<li class='menucontextitem' menu='example5'>Example 5</li>";
-    res += "<li class='menucontextitem' menu='copy'>Copy</li>";
-    if (this.marked == null)
-	res += "<li class='menucontextitem' menu='markcopy'>Mark & Copy</li>";
-    else
-	res += "<li class='menucontextitem' menu='copymark'>Copy Marked</li>";
-    if (tab.obj == 1 && tab.w < this.epsilon && tab.w > this.nepsilon) {
-	res += "<li class='menucontextitem' menu='copyxa'>Copy excluding Artificals</li>";
-    }
-    res += "<li class='menucontextitem' menu='save'>Save</li>";
-    if (this.history.length > 1)
-	res += "<li class='menucontextitem' menu='undo'>Undo</li>";
-    res += "</ul></span></th>";
 
+    function mci (n, v) {
+	return "<li class='menucontextitem' menu='" + v + "'>" + n + "</li>";
+    }
+
+    function bci (n, r) {
+	return "<li row='" + r + "' class='basiscontextitem'>" + n + "</li>";
+    }
+
+    if (this.primaling()) {
+	res += mci('Edit Mode', 'edit');
+	res += mci('Dual Mode', 'dual');
+    } else if (this.dualing()) {
+	res += mci('Edit Mode', 'edit');
+	res += mci('Primal Mode', 'primal');
+    } else if (this.editting()) {
+	res += mci('Primal Mode', 'primal');
+	res += mci('Dual Mode', 'dual');
+	res += mci('Add Constraint', 'addcon');
+	res += mci('Add Variable', 'addvar');
+    }
+    if (this.history.length > 1)
+	res += mci('Undo', 'undo');
+    res += mci('Copy', 'copy');
+    if (tab.obj == 1 && tab.w < 100*this.epsilon && tab.w > 100*this.nepsilon)
+	res += mci('Copy Excluding Artificals', 'copyxa');
+
+    if (this.marked == null)
+	res += mci('Mark & Copy', 'markcopy');
+    else
+	res += mci('Copy Marked', 'copymark');
+
+    res += mci('Save', 'save');
+    res += mci('Instructions', 'instructions');
+    res += mci('Example 5', 'example5');
+
+    res += "</ul></span></th>";
 
     for (var i = 0; i < tab.n_v; i++)
 	res += this.xCell(i);
     res += "<th class='rhs'>b</th></tr></thead><tbody>";
 
+    var values;
     for (var r = 0; r < tab.n_c; r++) {
 	res += "<tr>";
-	res += this.basisCell(r);
+
+	values = [];
+	res += "<th class='basis' row='"+(r+1)+"'>X";
+	if (tab.basis[r] != -1)
+	    res += "<sub>"+(tab.basis[r]+1)+"</sub>";
+
+	for (var i = 0; i < tab.n_v; i++)
+	    values[i] = i+1;
+	for (var i = 0; i < tab.n_c; i++)
+	    if (tab.basis[i] != -1)
+		values[tab.basis[i]] = -1;
+
+	res += "<ul class='basiscontext'>";
+	if (tab.basis[r] != -1)
+	    res += bci('X', 0);
+
+	for (var i = 0; i < tab.n_v; i++)
+	    if (values[i] != -1)
+		res += bci("X<sub>" + values[i] + "</sub>", values[i]);
+
+	if (tab.n_c > 1)
+	    res += bci('Remove', -1);
+
+	res += bci('Add Slack Variable', -2);
+	res += bci('Add Artifical Variable', -4);
+	res += bci('Add Integer Cut', -3);
+	res += bci('Create Branch & Bound sub-problems', -5);
+	res += "</ul></th>";
+
 	for (var i = 0; i < tab.n_v; i++) {
-	    t = "<span class='"+(r == cr && i == cc ? '':'no')+"circle'>"+this.num2txt(tab.a[r][i])+"</span>";
+	    t = this.circnum(tab.a[r][i], r == cr && i == cc);
 	    res += "<td class='"+(i in tab.artificals?'Aw':'A')+"' row='"+(r+1)+"' col='"+(i+1)+"'>"+ t +"</td>";
 	}
 	t = this.num2txt(tab.b[r]);
@@ -288,6 +300,44 @@ App.prototype.residualfloor = function(x) {
     return res;
 }
 
+App.prototype.bandb = function(basisrow) {
+    var tab = this.history[0];
+    var tabL = tab.copy();
+    var t = Math.floor(tab.b[basisrow]);
+    tabL.name = tab.name + ' - branch below ' + t;
+    var v = tab.basis[basisrow];
+    if (v < 0 || v >= n_v)
+	return;
+    var br = tab.a[basisrow];
+    var n_v = tab.n_v;
+    var n_c = tab.n_c;
+    tabL.addvariable();
+    tabL.addconstraint();
+    tabL.basis[n_c] = n_v;
+    var tabH = tabL.copy();
+    tabH.name = tab.name + ' - branch above ' + (t+1);
+    var brL = tabL.a[n_c];
+    var brH = tabH.a[n_c];
+
+    for (var i = 0; i < n_v; i++) {
+	if (i == v) {
+	    brL[i] = 0;
+	    brH[i] = 0;
+	} else {
+	    brL[i] = -br[i];
+	    brH[i] = br[i];
+	}
+    }
+
+    brL[n_v] = 1;
+    brH[n_v] = 1;
+    tabL.b[n_c] = t - tabL.b[basisrow];
+    tabH.b[n_c] = tabL.b[basisrow] - (t+1);
+
+    window.open(window.location.origin + window.location.pathname + '?' + tabL.toURL(), '_blank');
+    window.open(window.location.origin + window.location.pathname + '?' + tabH.toURL(), '_blank');
+}
+
 App.prototype.cutGomory = function(basisrow) {
     var tab = this.history[0];
     var v = tab.basis[basisrow];
@@ -335,13 +385,25 @@ App.prototype.example5 = function() {
     this.show(html, true);
 }
 
+App.prototype.undo = function(p, xa) {
+    if (app.history.length > 1) {
+	app.history.shift();
+	$('#history .Tableau:last-child').remove();
+	var tab = app.history[0];
+	tab.circlerow = -1;
+	tab.circlecol = -1;
+    }
+}
+
 App.prototype.copy = function(p, xa) {
     var n = p.copy();
     n.name = this.newname();
     if (xa) {
-	for (var o in p.artificals)
+	for (var o in p.artificals) {
 	    n.deletevariable(o);
+	}
 	n.obj = 0;
+	n.artificals = new Object();
     }
     this.history.unshift(n);
     this.show(this.render(), false);
@@ -359,7 +421,7 @@ App.prototype.newproblem = function() {
     };
     var tab, opts;
     if ('n_c' in a && 'n_v' in a) {
-	opts = {n_c: a['n_c'], n_v: a['n_v']};
+	opts = {n_c: parseInt(a['n_c']), n_v: parseInt(a['n_v'])};
 	if ('name' in a)
 	    opts['name'] = a['name'];
 	tab = new Tableau(opts);
@@ -392,14 +454,18 @@ App.prototype.newproblem = function() {
 	if ('f' in a) {
 	    k = a['f'].split(',');
 	    for (i in k)
-		tab.artificals[k[i]] = 1;
+		if (k[i] != "")
+		    tab.artificals[parseInt(k[i])] = 1;
 	}
 	if ('z' in a)
-	    tab.z = a['z'];
+	    if (a['z'] != "")
+		tab.z = parseFloat(a['z']);
 	if ('w' in a)
-	    tab.w = a['w'];
+	    if (a['w'] != "")
+		tab.w = parseFloat(a['w']);
 	if ('obj' in a)
-	    tab.obj = a['obj'];
+	    if (a['obj'] != "")
+		tab.obj = parseInt(a['obj']);
     } else {
 	opts = {n_c: 2, n_v: 5};
 	tab = new Tableau({n_c: 2, n_v:5});
@@ -454,6 +520,60 @@ function init() {
 	    $(this).find(".decimal").remove();
 	});
 
+    $(cid).on('mouseenter', '.z', function (e) {
+	    if (app.editting())
+		return;
+	    var tab = app.history[0];
+	    var cell = $("<span class='decimal'>"+tab.z+"</span>");
+	    var f = $(this).position();
+	    cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+	    $(this).append(cell);
+	});
+    $(cid).on('mouseleave', '.z', function () {
+	    $(this).find(".decimal").remove();
+	});
+
+    $(cid).on('mouseenter', '.w', function (e) {
+	    if (app.editting())
+		return;
+	    var tab = app.history[0];
+	    var cell = $("<span class='decimal'>"+tab.w+"</span>");
+	    var f = $(this).position();
+	    cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+	    $(this).append(cell);
+	});
+    $(cid).on('mouseleave', '.w', function () {
+	    $(this).find(".decimal").remove();
+	});
+
+    $(cid).on('mouseenter', '.c', function (e) {
+	    if (app.editting())
+		return;
+	    var tab = app.history[0];
+	    var col = $(this).attr("col") - 1;
+	    var cell = $("<span class='decimal'>"+tab.c[col]+"</span>");
+	    var f = $(this).position();
+	    cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+	    $(this).append(cell);
+	});
+    $(cid).on('mouseleave', '.c', function () {
+	    $(this).find(".decimal").remove();
+	});
+
+    $(cid).on('mouseenter', '.cw', function (e) {
+	    if (app.editting())
+		return;
+	    var tab = app.history[0];
+	    var col = $(this).attr("col") - 1;
+	    var cell = $("<span class='decimal'>"+tab.d[col]+"</span>");
+	    var f = $(this).position();
+	    cell.css({ top: f.top+$(this).height()*1.1, left: f.left+$(this).width()*1.1 });
+	    $(this).append(cell);
+	});
+    $(cid).on('mouseleave', '.cw', function () {
+	    $(this).find(".decimal").remove();
+	});
+
     $(cid).on('mouseenter', '.A', function (e) {
 	    if (app.editting())
 		return;
@@ -485,6 +605,30 @@ function init() {
 	    $(this).find(".ratio").remove();
 	});
 
+    $(document).on('keyup', function(e) {
+	    switch (e.keyCode) {
+	    default:
+		break;
+	    case 69: // e
+		$(app.helpid).removeClass('visible');
+		app.state = app.state_edit;
+		break;
+	    case 80: // p
+		$(app.helpid).removeClass('visible');
+		app.state = app.state_primal;
+		break;
+	    case 68: // d
+		$(app.helpid).removeClass('visible');
+		app.state = app.state_dual;
+		break;
+	    case 85: // u
+		$(app.helpid).removeClass('visible');
+		app.undo();
+		app.updateproblem();
+		break;
+	    }
+	});
+
     $(cid).on(act, '.A', function (e) {
 	    if (app.primaling()) {
 		var row = $(this).attr("row") - 1;
@@ -507,7 +651,7 @@ function init() {
 		app.history.unshift(n);
 		app.stackproblem();
 	    } else {
-		var OriginalContent = $(this).text();
+		var OriginalContent = $(this).children().first().text();
 		$(this).addClass("cellEditing");
 		$(this).html("<input type='text' value='" + OriginalContent + "' />");
 		var cell = $(this).children().first();
@@ -520,7 +664,7 @@ function init() {
 			    var col = $(this).parent().attr("col") - 1;
 			    app.history[0].a[row][col] = newContent;
 			    $(this).parent().removeClass("cellEditing");
-			    $(this).parent().text(app.num2txt(newContent));
+			    $(this).parent().html(app.circnum(newContent));
 			    col++;
 			    if (col == app.history[0].n_v) {
 				row++;
@@ -537,24 +681,24 @@ function init() {
 			    var col = $(this).parent().attr("col") - 1;
 			    app.history[0].a[row][col] = newContent;
 			    $(this).parent().removeClass("cellEditing");
-			    $(this).parent().text(app.num2txt(newContent));
+			    $(this).parent().html(app.circnum(newContent));
 			}
 		    });
 		cell.mouseleave(function (e) {
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(OriginalContent);
+			$(this).parent().html(OriginalContent);
 		    });
 		cell.blur(function(){
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(OriginalContent);
+			$(this).parent().html(OriginalContent);
 		    });
 	    }
 	});
 
     $(cid).on(act, '.b', function (e) {
 	    if (app.pivoting())
-		return
-	    var OriginalContent = $(this).text();
+		return;
+	    var OriginalContent = $(this).children().first().text();
 	    $(this).addClass("cellEditing");
 	    $(this).html("<input type='text' value='" + OriginalContent + "' />");
 	    var cell = $(this).children().first();
@@ -566,7 +710,7 @@ function init() {
 			var row = $(this).parent().attr("row") - 1;
 			app.history[0].b[row] = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(app.num2txt(newContent));
+			$(this).parent().html(app.num2txt(newContent));
 			row++;
 			if (row < app.history[0].n_c) {
 			    row++;
@@ -579,19 +723,19 @@ function init() {
 			var row = $(this).parent().attr("row") - 1;
 			app.history[0].b[row] = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(app.num2txt(newContent));
+			$(this).parent().html(app.num2txt(newContent));
 		    }
 		});
 	    cell.blur(function(){
 		    $(this).parent().removeClass("cellEditing");
-		    $(this).parent().text(OriginalContent);
+		    $(this).parent().html(OriginalContent);
 		});
 	});
 
     $(cid).on(act, '.c', function (e) {
 	    if (app.pivoting())
-		return
-	    var OriginalContent = $(this).text();
+		return;
+	    var OriginalContent = $(this).children().first().text();
 	    $(this).addClass("cellEditing");
 	    $(this).html("<input type='text' value='" + OriginalContent + "' />");
 	    var cell = $(this).children().first();
@@ -603,7 +747,7 @@ function init() {
 			var col = $(this).parent().attr("col") - 1;
 			app.history[0].c[col] = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(app.num2txt(newContent));
+			$(this).parent().html(app.num2txt(newContent));
 			col++;
 			if (col < app.history[0].n_v) {
 			    col++;
@@ -616,19 +760,19 @@ function init() {
 			var col = $(this).parent().attr("col") - 1;
 			app.history[0].c[col] = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(app.num2txt(newContent));
+			$(this).parent().html(app.num2txt(newContent));
 		    }
 		});
 	    cell.blur(function(){
 		    $(this).parent().removeClass("cellEditing");
-		    $(this).parent().text(OriginalContent);
+		    $(this).parent().html(OriginalContent);
 		});
 	});
 
     $(cid).on(act, '.z', function (e) {
 	    if (app.pivoting())
-		return
-	    var OriginalContent = $(this).text();
+		return;
+	    var OriginalContent = $(this).children().first().text();
 	    $(this).addClass("cellEditing");
 	    $(this).html("<input type='text' value='" + OriginalContent + "' />");
 	    var cell = $(this).children().first();
@@ -641,19 +785,19 @@ function init() {
 			var newContent = eval($(this).val());
 			app.history[0].z = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(app.num2txt(newContent));
+			$(this).parent().html(app.num2txt(newContent));
 		    }
 		});
 	    cell.blur(function(){
 		    $(this).parent().removeClass("cellEditing");
-		    $(this).parent().text(OriginalContent);
+		    $(this).parent().html(OriginalContent);
 		});
 	});
 
     $(cid).on(act, '.name', function (e) {
 	    if (app.pivoting())
-		return
-	    var OriginalContent = $(this).text();
+		return;
+	    var OriginalContent = $(this).children().first().text();
 	    $(this).addClass("cellEditing");
 	    $(this).html("<input type='text' value='" + OriginalContent + "' />");
 	    var cell = $(this).children().first();
@@ -663,12 +807,12 @@ function init() {
 			var newContent = $(this).val();
 			app.history[0].name = newContent;
 			$(this).parent().removeClass("cellEditing");
-			$(this).parent().text(newContent);
+			$(this).parent().html(newContent);
 		    }
 		});
 	    cell.blur(function(){
 		    $(this).parent().removeClass("cellEditing");
-		    $(this).parent().text(OriginalContent);
+		    $(this).parent().html(OriginalContent);
 		});
 	});
 
@@ -681,7 +825,9 @@ function init() {
 		});
 	});
 
+
     $(cid).on(act, '.menucontextitem', function (e) {
+	    $(app.helpid).removeClass('visible');
 	    var act = $(this).attr('menu');
 	    if (act == "edit") {
 		app.state = app.state_edit;
@@ -710,13 +856,7 @@ function init() {
 	    } else if (act == "save") {
 		window.open(window.location.origin + window.location.pathname + '?' + app.history[0].toURL(), '_blank');
 	    } else if (act == "undo") {
-		if (app.history.length > 1) {
-		    app.history.shift();
-		    $('#history .Tableau:last-child').remove();
-		    var tab = app.history[0];
-		    tab.circlerow = -1;
-		    tab.circlecol = -1;
-		}
+		app.undo();
 	    } else if (act == "instructions") {
 		$('#instructions').toggleClass("visible");
 	    }
@@ -761,6 +901,9 @@ function init() {
 		tab.d[tab.n_v-1] = 0;
 		tab.w -= tab.b[basisrow];
 		tab.basis[basisrow] = tab.n_v-1;
+		break;
+	    case -6: // branch & bound
+		app.bandb(basisrow);
 		break;
 	    case -4: // A cut for integer problem
 		app.cutGomory(basisrow);

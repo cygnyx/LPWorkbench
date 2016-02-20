@@ -1,7 +1,6 @@
 body {
   background-color: white;
   font-size: larger;
-  font-family: fixed;
 }
 
 #textarea {
@@ -17,6 +16,18 @@ body {
   border: 1px solid black;
   border-radius: 50%;
   padding: .25em;
+}
+
+#help.visible {
+  display: block;
+}
+
+#help {
+  display: none;
+}
+
+#shortcutlist {
+  list-style-type: none;
 }
 
 #instructions.visible {
@@ -207,7 +218,7 @@ body {
 }
 
 .Tableau .menu span {
-  font-size: 1.5em;
+  font-size: smaller;
 }
 
 .Tableau .menucontext.visible {
@@ -256,4 +267,17 @@ body {
 
 .Tableau td:hover {
   background-color: white;
+}
+
+@media print {
+  .noprint, .noprint * {
+    display: none !important;
+  }
+  body {
+    background-color: white;
+    font-size: smaller;
+  }
+  .Tableau {
+    page-break-inside: avoid;
+  }
 }

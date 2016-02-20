@@ -37,21 +37,6 @@ var Tableau = function(options) {
     this.circlecol = -1;
 }
 
-Tableau.prototype.toURL = function() {
-    var res = "";
-    var num = ['name','n_c','n_v', 'z', 'w', 'obj'];
-    var arr = ['basis', 'x', 'b', 'a', 'c', 'd'];
-    var f = "";
-    for (var key in this.artificals)
-	f += ',' + key;
-    for (var key in num)
-	res += '&' + num[key] + "=" + encodeURIComponent(this[num[key]]);
-    for (var key in arr)
-	res += '&' + arr[key] + "=" + encodeURIComponent(this[arr[key]].join(','));
-
-    return res.substring(1) + "&f=" + encodeURIComponent(f.substring(1));
-}
-
 Tableau.prototype.pivot = function(row, col) {
     var pivotrow = this.a[row];
     var f = 1.0 / pivotrow[col];
@@ -128,28 +113,6 @@ Tableau.prototype.addconstraint = function() {
     this.n_c = c+1;
 }
 
-Tableau.prototype.maxpositivecindex = function(c) {
-    var res = -1;
-    var v = 0;
-    for (var i = 0; i < this.n_v; i++)
-	if (this.c[i] > v) {
-	    v = this.c[i];
-	    res = i;
-	}
-    return res;
-}
-
-Tableau.prototype.minnegativebindex = function(c) {
-    var res = -1;
-    var v = 0;
-    for (var i = 0; i < this.n_c; i++)
-	if (this.b[i] < v) {
-	    v = this.b[i];
-	    res = i;
-	}
-    return res;
-}
-
 Tableau.prototype.deleteconstraint = function(c) {
     this.basis.splice(c,1);
     this.b.splice(c,1);
@@ -181,4 +144,19 @@ Tableau.prototype.deletevariable = function(v) {
 
 Tableau.prototype.toString = function() {
     return this.name + "[" + this.n_c + "x" + this.n_v + "]"
+}
+
+Tableau.prototype.toURL = function() {
+    var res = "";
+    var num = ['name','n_c','n_v', 'z', 'w', 'obj'];
+    var arr = ['basis', 'x', 'b', 'a', 'c', 'd'];
+    var f = "";
+    for (var key in this.artificals)
+	f += ',' + key;
+    for (var key in num)
+	res += '&' + num[key] + "=" + encodeURIComponent(this[num[key]]);
+    for (var key in arr)
+	res += '&' + arr[key] + "=" + encodeURIComponent(this[arr[key]].join(','));
+
+    return res.substring(1) + "&f=" + encodeURIComponent(f.substring(1));
 }
