@@ -8,6 +8,10 @@ body {
   font-size: larger;
 }
 
+.tt {
+  font-family: monospace;
+}
+
 .nocircle {
   padding: .25em;
 }
