@@ -501,6 +501,9 @@ App.prototype.newproblem = function() {
 var app = new App();
 
 function init() {
+    $('#instructions').removeClass("visible");
+    $(app.helpid).addClass('visible');
+
     var cid = app.currentid;
     var act = 'click';
 

@@ -16,42 +16,18 @@
 </head>
 <body>
 <h1>Linear Programming Workbench</h1>
-<div id="help" class="visible noprint">
-Use the menu in the tableau to get instructions and execute operations.
-<p>
-Keyboard shortcuts:
-<ul id="shortcutlist">
-<li>p - Primal Mode
-<li>d - Dual Mode
-<li>e - Edit Mode
-<li>u - Undo
-</ul>
-</p>
-</div>
-<div id="instructions">
+
+<div id="instructions" class="visible">
 <h2>Instructions</h2>
 <p>
 Linear Programming Workbench is a free tool for students to manipulate tableaux representing Simplex style linear programming
 problems. The problems are specified in canonical form using the notation in
 <cite>An Introduction to Linear Programming and Game Theory, Third Edition</cite>
 by <span class="author">Paul R. Thie and G. E. Keough</span>.
-The student can adjust the tableau by various operations including pivoting.
+The student can adjust the tableau by pivoting, adjusting variables and constraints.
 </p><p>
-Variables and constraint can be added or removed as needed to solve the problem.
-New variables are assumed to be slack variables, but the student can edit the tableau as needed.
-New Artifical variables will generate an auxiliary w-function.
+This tool works in web browsers that have Javascript enabled. Further details about the <a href="#implementation">implementation</a> are discussed below.
 </p><p>
-After the problem is set up the student can pivot on an term by clicking on it.
-The appropriate ratio is displayed by hovering over the term corresponding to primal or dual mode.
-</p><p>
-Once a solution to a problem is achieved, the student has several choices on how to proceed.
-For a branch and bound style integer problem, the tableau can be marked and copied.
-The student proceeds to solve the first branch, then copies the marked tableau to solve the second branch.
-For a problem with artifical variables, once the auxiliary w-function is optimized to 0,
-the student can copy the tableau without the associated artifical variables in order to solve the original problem.
-At any point the student can make a copy of the tableau in order to add constraints or variables.
-Alternatively the student can save the tableau which will create a new page.
-</p>
 
 <h2>Getting Started</h2>
 
@@ -66,7 +42,7 @@ The name of the tableau can also be changed.
 </p><p>
 Selecting a basis label will display a context menu.
 The student can change the label of the basis, remove the constraint, add a slack or artifical variable,
-or add a Gomory integer cut.
+add a Gomory integer cut, or create branch and bound sub-programs.
 </p><p>
 Selecting a variable name will also display a context menu which allows the student to remove the variable.
 </p><p>
@@ -169,20 +145,33 @@ Now, variables x<sub>1</sub> - x<sub>5</sub> have integer values x<sup>t</sup> =
 and the objective function value is 19.
 </p>
 
-<h2>Implementation</h2>
+<h2 id="implementation">Implementation</h2>
 
 <p>
 This instructional tool is written in web standard languages: HTML, CSS and Javascript.
+The student may need to enable javascript in their web browser for the tool to work properly.
 It uses the jquery javascript library to support compatibility with most browsers.
-The layout is designed to work with as many devices as possible: computers, pads and smart phones.
+The layout is designed to work with as many devices as possible: computers, pads and phones.
 Internally the calculations use double precision floating point arithmatic.
 Fractional values displayed in the tableau are approximations of these floating point values.
 Small tolerances are used to identify values that are close to zero.
 </p>
-
 <h2>Tableaux</h2>
+</div>
+
+<div id="help" class="noprint">
+Use the menu in the tableau to get instructions and execute operations.
+<p>
+Keyboard shortcuts:
+<ul id="shortcutlist">
+<li>p - Primal Mode
+<li>d - Dual Mode
+<li>e - Edit Mode
+<li>u - Undo
+</ul>
 </p>
 </div>
+
 <div id="history">
 </div>
 <div id="current">
